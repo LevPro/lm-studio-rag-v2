@@ -1,30 +1,42 @@
-# LM Studio Plugin Scaffold
+# LM Studio rag-v2
 
-Welcome to your new project! This scaffold is a starting point for building a LM Studio plugin using TypeScript.
+`rag-v2` – это плагин, реализующий функциональность Retrieval-Augmented Generation (RAG) в LM Studio для содержимого директорий.
 
-## Getting Started
+---
 
-### Development
-
-The source code resides in the `src/` directory. For development purposes, you can run the plugin in development mode using:
+## Установка
 
 ```bash
+# Клонируем репозиторий
+git clone https://github.com/LevPro/lm-studio-rag-v2.git
+cd rag-v2
+
+# Устанавливаем зависимости
+npm install
+```
+
+## Разработка
+```bash
+# Запуск плагина в режиме разработки
 lms dev
 ```
 
-### Publishing
-
-To share your plugin with the community, you can publish it to LM Studio Hub using:
-
+## Публикация
 ```bash
+# Для публикации (или обновления) плагина на LM Studio Hub используйте
 lms push
 ```
 
-The same command can also be used to update an existing plugin.
+## Лицензия
+Проект распространяется под лицензией CC‑BY‑NC. Смотрите файл LICENSE для подробностей.
 
-### Community & Help
+## Поддержка и сообщество
+- GitHub репозиторий: <https://github.com/levpro/rag-v2>
+- Документация LM Studio: <https://lmstudio.ai/docs>
+- Discord сервер: <https://discord.gg/6Q7Xn6MRVS>
+- Twitter: <https://twitter.com/LMStudioAI>
 
-- [lmstudio-js GitHub](https://github.com/lmstudio-ai/lmstudio-js)
-- [Documentation](https://lmstudio.ai/docs)
-- [Discord](https://discord.gg/6Q7Xn6MRVS)
-- [Twitter](https://twitter.com/LMStudioAI)
+## Вклад
+1. Форкните репозиторий.
+2. Создайте ветку с вашим изменением (`git checkout -b feature/foo`).
+3. Отправьте PR, описав изменения.
