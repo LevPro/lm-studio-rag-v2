@@ -63,8 +63,17 @@ async function scanDirectory(directory: string, excludedWords: Set<string>, allo
             if (fs.statSync(fullPath).isDirectory()) {
                 await scanDirectory(fullPath, excludedWords, allowExtensions, userMessage, ctl);
             } else if (allowExtensions.has(path.extname(item).toLowerCase())) {
-                const preparedFile = await ctl.client.files.prepareFile(fullPath);
-                userMessage.appendFile(preparedFile);
+                let fileExist = false
+                for (const f of userMessage.getFiles(ctl.client)) {
+                    let fPath = await f.getFilePath();
+                    if (fPath === fullPath) {
+                        fileExist = true
+                    }
+                }
+                if (!fileExist) {
+                    const preparedFile = await ctl.client.files.prepareFile(fullPath);
+                    userMessage.appendFile(preparedFile);
+                }
             }
         }
     }
