@@ -39,7 +39,7 @@ export async function preprocess(ctl: PromptPreprocessorController, userMessage:
 async function scanDirectories(ctl: PromptPreprocessorController, userMessage: ChatMessage) {
     const pluginConfig = ctl.getPluginConfig(configSchematics);
 
-    const scanDirs = pluginConfig.get("directories").split(",");
+    const scanDirs = new Set(pluginConfig.get("directories").split(","));
     const allowExtensions = new Set(pluginConfig.get("extensions").split(","));
     const excludedWords = new Set(pluginConfig.get("exclude").split(","));
 
