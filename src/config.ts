@@ -55,4 +55,14 @@ export const configSchematics = createConfigSchematics()
         },
         0.5,
     )
+    .field(
+        "model",
+        "string",
+        {
+            displayName: "Embed model",
+            subtitle: "Embed model for dile analysis",
+            placeholder: ""
+        },
+        "nomic-ai/nomic-embed-text-v1.5-GGUF"
+    )
     .build();

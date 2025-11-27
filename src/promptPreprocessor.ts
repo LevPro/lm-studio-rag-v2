@@ -96,7 +96,7 @@ async function prepareRetrievalResultsContextInjection(
     status: "loading",
     text: `Loading an embedding model for retrieval...`,
   });
-  const model = await ctl.client.embedding.model("nomic-ai/nomic-embed-text-v1.5-GGUF", {
+  const model = await ctl.client.embedding.model(pluginConfig.get("model") ? pluginConfig.get("model") : "nomic-ai/nomic-embed-text-v1.5-GGUF", {
     signal: ctl.abortSignal,
   });
   retrievingStatus.setState({
