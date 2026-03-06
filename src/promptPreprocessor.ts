@@ -18,7 +18,6 @@ export async function preprocess(ctl: PromptPreprocessorController, userMessage:
 
   const userPrompt = userMessage.getText();
   const history = await ctl.pullHistory();
-  history.append(userMessage);
   const newFiles = userMessage.getFiles(ctl.client).filter(f => f.type !== "image");
   const files = history.getAllFiles(ctl.client).filter(f => f.type !== "image");
 
@@ -39,9 +38,9 @@ export async function preprocess(ctl: PromptPreprocessorController, userMessage:
 async function scanDirectories(ctl: PromptPreprocessorController, userMessage: ChatMessage) {
     const pluginConfig = ctl.getPluginConfig(configSchematics);
 
-    const scanDirs = new Set(pluginConfig.get("directories").split(","));
-    const allowExtensions = new Set(pluginConfig.get("extensions").split(","));
-    const excludedWords = new Set(pluginConfig.get("exclude").split(","));
+    const scanDirs = new Set<string>(pluginConfig.get("directories").split(",").filter((s: string) => s.trim()));
+    const allowExtensions = new Set<string>(pluginConfig.get("extensions").split(",").filter((s: string) => s.trim()));
+    const excludedWords = new Set<string>(pluginConfig.get("exclude").split(",").filter((s: string) => s.trim()));
 
     for (const dir of scanDirs) {
         await scanDirectory(dir, excludedWords, allowExtensions, userMessage, ctl);
@@ -49,7 +48,13 @@ async function scanDirectories(ctl: PromptPreprocessorController, userMessage: C
 }
 
 async function scanDirectory(directory: string, excludedWords: Set<string>, allowExtensions: Set<string>, userMessage: ChatMessage, ctl: PromptPreprocessorController) {
-    const items = fs.readdirSync(directory);
+    let items: string[];
+    try {
+        items = fs.readdirSync(directory);
+    } catch (error) {
+        ctl.debug(`Failed to read directory ${directory}: ${error}`);
+        return;
+    }
     for (const item of items) {
         const fullPath = path.join(directory, item);
         let isExcluded = false;
@@ -60,14 +65,27 @@ async function scanDirectory(directory: string, excludedWords: Set<string>, allo
             }
         }
         if (!isExcluded) {
-            if (fs.statSync(fullPath).isDirectory()) {
+            let stat: fs.Stats;
+            try {
+                stat = fs.statSync(fullPath);
+            } catch (error) {
+                ctl.debug(`Failed to stat ${fullPath}: ${error}`);
+                continue;
+            }
+            if (stat.isDirectory()) {
                 await scanDirectory(fullPath, excludedWords, allowExtensions, userMessage, ctl);
             } else if (allowExtensions.has(path.extname(item).toLowerCase())) {
-                let fileExist = false
+                let fileExist = false;
                 for (const f of userMessage.getFiles(ctl.client)) {
-                    let fPath = await f.getFilePath();
+                    let fPath: string | undefined;
+                    try {
+                        fPath = await f.getFilePath();
+                    } catch {
+                        continue;
+                    }
                     if (fPath === fullPath) {
-                        fileExist = true
+                        fileExist = true;
+                        break;
                     }
                 }
                 if (!fileExist) {
@@ -205,20 +223,24 @@ async function prepareDocumentContextInjection(
   }
 
   // Format the final user prompt
-  // TODO:
-  //    Make this templatable and configurable
-  //      https://github.com/lmstudio-ai/llmster/issues/1017
+  const pluginConfig = ctl.getPluginConfig(configSchematics);
   let formattedFinalUserPrompt = "";
 
   if (documentInjectionSnippets.size > 0) {
-    formattedFinalUserPrompt +=
-      "This is a Enriched Context Generation scenario.\n\nThe following content was found in the files provided by the user.\n";
+    const headerTemplate = pluginConfig.get("injectFullContentHeader") || "";
+    const fileTemplate = pluginConfig.get("injectFullContentFileTemplate") || "";
+    const footerTemplate = pluginConfig.get("injectFullContentFooter") || "";
+
+    formattedFinalUserPrompt += headerTemplate.replace("{filesCount}", String(documentInjectionSnippets.size));
 
     for (const [fileHandle, snippet] of documentInjectionSnippets) {
-      formattedFinalUserPrompt += `\n\n** ${fileHandle.name} full content **\n\n${snippet}\n\n** end of ${fileHandle.name} **\n\n`;
+      let fileContent = fileTemplate
+        .replace(/{fileName}/g, fileHandle.name)
+        .replace("{content}", snippet);
+      formattedFinalUserPrompt += fileContent;
     }
 
-    formattedFinalUserPrompt += `Based on the content above, please provide a response to the user query.\n\nUser query: ${input.getText()}`;
+    formattedFinalUserPrompt += footerTemplate.replace("{userQuery}", input.getText());
   }
 
   input.replaceText(formattedFinalUserPrompt);

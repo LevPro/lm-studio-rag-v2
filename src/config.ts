@@ -29,7 +29,7 @@ export const configSchematics = createConfigSchematics()
             subtitle: "Comma-separated list of file extensions to include (e.g., .txt,.md)",
             placeholder: ".txt,.md,.pdf"
         },
-        ".txt,.md,.pdf"
+        ""
     )
     .field(
         "retrievalLimit",
@@ -60,9 +60,36 @@ export const configSchematics = createConfigSchematics()
         "string",
         {
             displayName: "Embed model",
-            subtitle: "Embed model for dile analysis",
+            subtitle: "Embed model for file analysis",
             placeholder: ""
         },
         "nomic-ai/nomic-embed-text-v1.5-GGUF"
+    )
+    .field(
+        "injectFullContentHeader",
+        "string",
+        {
+            displayName: "Inject Full Content - Header",
+            subtitle: "Template for header when injecting full file content. Use {filesCount} for number of files.",
+        },
+        "This is an Enriched Context Generation scenario.\\n\\nThe following content was found in the files provided by the user.\\n"
+    )
+    .field(
+        "injectFullContentFileTemplate",
+        "string",
+        {
+            displayName: "Inject Full Content - File Template",
+            subtitle: "Template for each file. Use {fileName} for filename and {content} for file content.",
+        },
+        "\\n\\n** {fileName} full content **\\n\\n{content}\\n\\n** end of {fileName} **\\n\\n"
+    )
+    .field(
+        "injectFullContentFooter",
+        "string",
+        {
+            displayName: "Inject Full Content - Footer",
+            subtitle: "Template for footer. Use {userQuery} for the user's question.",
+        },
+        "Based on the content above, please provide a response to the user query.\\n\\nUser query: {userQuery}"
     )
     .build();
