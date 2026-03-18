@@ -31,7 +31,7 @@ lms push
 Проект распространяется под лицензией CC‑BY‑NC. Смотрите файл LICENSE для подробностей.
 
 ## Поддержка и сообщество
-- GitHub репозиторий: <https://github.com/levpro/rag-v2>
+- GitHub репозиторий: <https://github.com/LevPro/lm-studio-rag-v2>
 - Документация LM Studio: <https://lmstudio.ai/docs>
 - Discord сервер: <https://discord.gg/6Q7Xn6MRVS>
 - Twitter: <https://twitter.com/LMStudioAI>
